@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EduSistema · acceso</title>
+  </head>
+  <body>
+    <main style="max-width:380px;margin:60px auto;font-family:system-ui;padding:26px;border:2px solid #152A22;border-radius:14px;background:#FCFBF6">
+      <h1 style="margin:0 0 4px;font-size:1.6rem">🏫 EduSistema</h1>
+      <p style="margin:0 0 18px;color:#555">Acceso del dueño</p>
+      <form id="login" style="display:grid;gap:10px">
+        <input id="email" type="email" placeholder="tu correo" required style="padding:10px;border:2px solid #152A22;border-radius:8px" />
+        <input id="pass" type="password" placeholder="contraseña" required style="padding:10px;border:2px solid #152A22;border-radius:8px" />
+        <button type="submit" style="padding:11px;background:#FFC53D;border:2px solid #152A22;border-radius:8px;font-weight:700;cursor:pointer">Entrar →</button>
+      </form>
+      <pre id="out" style="margin-top:18px;white-space:pre-wrap;background:#0F3527;color:#D9F0E3;padding:14px;border-radius:8px;font-size:.85rem">— esperando —</pre>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
