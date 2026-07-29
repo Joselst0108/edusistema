@@ -5,15 +5,26 @@ const app = document.getElementById('app')
 let deckTimer = null
 let revealObs = null
 
-/* ============ utilidades ============ */
-const money = n => '$ ' + Number(n || 0).toLocaleString('es-PE')
+/* ============ helpers ============ */
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
+const money = n => '$ ' + Number(n || 0).toLocaleString('es-PE')
 const WM = (dark) => `<span class="wm lg${dark ? ' on-dark' : ''}"><span class="a">Edu</span><span class="b">Sistema</span></span>`
+const hoyISO = () => new Date().toISOString().slice(0, 10)
+const fmtDate = iso => { try { return new Date(iso).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }) } catch { return '—' } }
+const PLANES = [['semillero', '🌱', 'Semillero', '$1.20/al'], ['institucional', '🏫', 'Institucional', '$2.40/al'], ['distrito', '🏛️', 'Distrito', 'a medida']]
+const ESTADOS = [['activo', '● Activo'], ['prueba', '◐ En prueba'], ['suspendido', '○ Suspendido']]
 function clearTimers(){ if (deckTimer) clearInterval(deckTimer); deckTimer = null }
 function initReveals(){
   if (revealObs) revealObs.disconnect()
   revealObs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); revealObs.unobserve(e.target) } }), { threshold: .12 })
   app.querySelectorAll('.rv').forEach(el => revealObs.observe(el))
+}
+function toast(msg, tipo = 'ok'){
+  let wrap = document.getElementById('toasts')
+  if (!wrap){ wrap = document.createElement('div'); wrap.id = 'toasts'; wrap.className = 'toast-stack'; document.body.appendChild(wrap) }
+  const el = document.createElement('div'); el.className = 'toast ' + tipo; el.textContent = msg
+  wrap.appendChild(el); requestAnimationFrame(() => el.classList.add('in'))
+  setTimeout(() => { el.classList.remove('in'); setTimeout(() => el.remove(), 350) }, 3600)
 }
 function route(){
   const h = (location.hash || '').replace(/^#/, '')
@@ -145,57 +156,26 @@ function renderLanding(){
       </div>
     </div>
   </div>
-
   <div class="ticker" aria-hidden="true">
     <div class="tk-track">
       <span>🔔 07:45 Ingreso</span><span>✦</span><span>📐 08:00 Matemática</span><span>✦</span><span>🧪 09:30 Ciencia</span><span>✦</span><span>🥪 10:30 Recreo</span><span>✦</span><span>💰 12:30 Caja: 3 pagos</span><span>✦</span><span>🏠 15:15 Salida</span><span>✦</span>
       <span>🔔 07:45 Ingreso</span><span>✦</span><span>📐 08:00 Matemática</span><span>✦</span><span>🧪 09:30 Ciencia</span><span>✦</span><span>🥪 10:30 Recreo</span><span>✦</span><span>💰 12:30 Caja: 3 pagos</span><span>✦</span><span>🏠 15:15 Salida</span><span>✦</span>
     </div>
   </div>
-
   <section class="band" id="modulos">
     <div class="wrap">
-      <div class="sec-head rv">
-        <span class="kicker">Los 4 módulos</span>
-        <h2>Un ecosistema, no cuatro apps sueltas</h2>
-        <p>Cada módulo resuelve un dolor distinto del colegio — y todos se alimentan de los mismos datos. Una marca, cuatro especialistas.</p>
-      </div>
+      <div class="sec-head rv"><span class="kicker">Los 4 módulos</span><h2>Un ecosistema, no cuatro apps sueltas</h2><p>Cada módulo resuelve un dolor distinto del colegio — y todos se alimentan de los mismos datos. Una marca, cuatro especialistas.</p></div>
       <div class="bento">
-        <article class="bcard b-admin rv">
-          <span class="btag">MÓDULO 01 · FINANZAS</span>
-          <img class="mod-lockup" src="/logos/eduadmin.png" alt="EduAdmin — administración escolar inteligente" onerror="this.style.display='none'">
-          <p class="sub">La caja del colegio bajo control: pensiones, matrículas, recibos y reportes — sin hojas de cálculo.</p>
-          <a class="link-mod" href="#/login">Conocer módulo →</a>
-        </article>
-        <article class="bcard b-assist rv" style="--d:.1s">
-          <span class="btag">MÓDULO 02 · ACADÉMICO</span>
-          <img class="mod-lockup" src="/logos/eduassist.png" alt="EduAssist — asistencia y calificaciones" onerror="this.style.display='none'">
-          <p class="sub">Horarios, pase de lista y notas en el bolsillo del docente, con boletas listas para la familia.</p>
-          <a class="link-mod" href="#/login">Conocer módulo →</a>
-        </article>
-        <article class="bcard b-ia rv">
-          <span class="btag">MÓDULO 03 · IA DOCENTE</span>
-          <img class="mod-lockup" src="/logos/eduia.png" alt="EduIA — inteligencia artificial educativa" onerror="this.style.display='none'">
-          <p class="sub">Sesiones, programaciones y rúbricas generadas con IA, alineadas al currículo y a tu aula real.</p>
-          <a class="link-mod" href="#/login">Conocer módulo →</a>
-        </article>
-        <article class="bcard b-bank rv" style="--d:.1s">
-          <span class="btag">MÓDULO 04 · ED. FINANCIERA</span>
-          <img class="mod-lockup" src="/logos/edubank.png" alt="EduBank — gestión financiera escolar" onerror="this.style.display='none'">
-          <p class="sub">Un banco-escuela con IA donde los estudiantes ahorran, presupuestan e invierten con monedas virtuales.</p>
-          <a class="link-mod" href="#/login">Conocer módulo →</a>
-        </article>
+        <article class="bcard b-admin rv"><span class="btag">MÓDULO 01 · FINANZAS</span><img class="mod-lockup" src="/logos/eduadmin.png" alt="EduAdmin" onerror="this.style.display='none'"><p class="sub">La caja del colegio bajo control: pensiones, matrículas, recibos y reportes — sin hojas de cálculo.</p><a class="link-mod" href="#/login">Conocer módulo →</a></article>
+        <article class="bcard b-assist rv" style="--d:.1s"><span class="btag">MÓDULO 02 · ACADÉMICO</span><img class="mod-lockup" src="/logos/eduassist.png" alt="EduAssist" onerror="this.style.display='none'"><p class="sub">Horarios, pase de lista y notas en el bolsillo del docente, con boletas listas para la familia.</p><a class="link-mod" href="#/login">Conocer módulo →</a></article>
+        <article class="bcard b-ia rv"><span class="btag">MÓDULO 03 · IA DOCENTE</span><img class="mod-lockup" src="/logos/eduia.png" alt="EduIA" onerror="this.style.display='none'"><p class="sub">Sesiones, programaciones y rúbricas generadas con IA, alineadas al currículo y a tu aula real.</p><a class="link-mod" href="#/login">Conocer módulo →</a></article>
+        <article class="bcard b-bank rv" style="--d:.1s"><span class="btag">MÓDULO 04 · ED. FINANCIERA</span><img class="mod-lockup" src="/logos/edubank.png" alt="EduBank" onerror="this.style.display='none'"><p class="sub">Un banco-escuela con IA donde los estudiantes ahorran, presupuestan e invierten con monedas virtuales.</p><a class="link-mod" href="#/login">Conocer módulo →</a></article>
       </div>
     </div>
   </section>
-
   <section class="band" id="roles" style="padding-top:0">
     <div class="wrap">
-      <div class="sec-head rv">
-        <span class="kicker">Un solo login</span>
-        <h2>Cada quien ve solo lo suyo</h2>
-        <p>Un usuario y contraseña para todo. El sistema abre los módulos que le corresponden a cada rol.</p>
-      </div>
+      <div class="sec-head rv"><span class="kicker">Un solo login</span><h2>Cada quien ve solo lo suyo</h2><p>Un usuario y contraseña para todo. El sistema abre los módulos que le corresponden a cada rol.</p></div>
       <div class="roles">
         <div class="role-card rv">
           <div class="role-row"><span class="role-ico" style="background:rgba(0,94,54,.12)">👑</span><span class="who">Dueño</span><span class="see">Ve todos los colegios y la caja global</span></div>
@@ -211,45 +191,31 @@ function renderLanding(){
       </div>
     </div>
   </section>
-
   <section class="cta-band" id="demo">
     <div class="wrap cta-grid" style="padding:80px 24px">
       <div class="rv">
         <span class="kicker" style="color:var(--gold)">Demo personalizada</span>
         <h2>Mira tu colegio funcionando <em>antes de decidir.</em></h2>
         <p style="opacity:.85">En 30 minutos cargamos una muestra con tus grados y pensiones reales.</p>
-        <ul class="cta-list">
-          <li>Sin tarjeta, sin compromiso</li>
-          <li>Con datos de ejemplo de tu propio colegio</li>
-          <li>Invita a tu administrador y a un docente</li>
-        </ul>
+        <ul class="cta-list"><li>Sin tarjeta, sin compromiso</li><li>Con datos de ejemplo de tu propio colegio</li><li>Invita a tu administrador y a un docente</li></ul>
       </div>
       <form class="demo-form rv" id="demoForm" style="--d:.15s">
-        <label>Nombre y cargo</label>
-        <input type="text" placeholder="Ej. Rosa Mendoza, Directora" required>
-        <label>Colegio</label>
-        <input type="text" placeholder="Nombre de la institución" required>
-        <label>N.º de alumnos</label>
-        <select><option>Menos de 200</option><option selected>200 – 500</option><option>500 – 1000</option><option>Más de 1000</option></select>
-        <label>Correo</label>
-        <input type="email" placeholder="direccion@colegio.edu" required>
+        <label>Nombre y cargo</label><input type="text" placeholder="Ej. Rosa Mendoza, Directora" required>
+        <label>Colegio</label><input type="text" placeholder="Nombre de la institución" required>
+        <label>N.º de alumnos</label><select><option>Menos de 200</option><option selected>200 – 500</option><option>500 – 1000</option><option>Más de 1000</option></select>
+        <label>Correo</label><input type="email" placeholder="direccion@colegio.edu" required>
         <button class="btn btn-base" type="submit">Quiero mi demo →</button>
         <p class="form-note">🔒 Tus datos solo se usan para coordinar la demo.</p>
       </form>
     </div>
-  </section>
-  ` + footerHTML()
+  </section>` + footerHTML()
 
   const order = ['admin','assist','ia','bank']; let di = 0
-  const showMod = m => {
-    app.querySelectorAll('.deck-tab').forEach(b => b.classList.toggle('on', b.dataset.m === m))
-    app.querySelectorAll('.mod').forEach(p => p.classList.toggle('on', p.dataset.m === m))
-  }
+  const showMod = m => { app.querySelectorAll('.deck-tab').forEach(b => b.classList.toggle('on', b.dataset.m === m)); app.querySelectorAll('.mod').forEach(p => p.classList.toggle('on', p.dataset.m === m)) }
   const restart = () => { clearInterval(deckTimer); deckTimer = setInterval(() => { di = (di + 1) % 4; showMod(order[di]) }, 5200) }
   const tabs = app.querySelector('.deck-tabs')
   if (tabs) tabs.addEventListener('click', e => { const b = e.target.closest('.deck-tab'); if (!b) return; di = order.indexOf(b.dataset.m); showMod(b.dataset.m); restart() })
   restart()
-
   addEventListener('scroll', () => { const h = document.getElementById('topbar'); if (h) h.classList.toggle('scrolled', scrollY > 10) })
   const df = document.getElementById('demoForm')
   if (df) df.addEventListener('submit', e => { e.preventDefault(); const b = df.querySelector('button'); b.textContent = '✓ ¡Listo! Te contactamos hoy'; b.style.background = 'var(--base)'; b.style.color = '#fff'; df.querySelectorAll('input,select').forEach(i => i.disabled = true) })
@@ -260,8 +226,7 @@ function renderLogin(){
   app.innerHTML = headerHTML('login') + `
   <div class="auth-wrap">
     <div class="auth-art">
-      <span class="art-stk a1">🔒 RLS activo</span>
-      <span class="art-stk a2">👑 superadmin</span>
+      <span class="art-stk a1">🔒 RLS activo</span><span class="art-stk a2">👑 superadmin</span>
       <img class="art-logo" src="/logos/edusistema.png" alt="EduSistema" onerror="this.style.display='none'">
       <h2>El sistema operativo<br><em>de tu colegio.</em></h2>
       <p>Entra con tu cuenta y el sistema te abrirá exactamente lo que te corresponde: la caja, el aula, la IA o el banco-escuela.</p>
@@ -281,25 +246,21 @@ function renderLogin(){
     </div>
   </div>`
 }
-
 async function doLogin(email, password){
-  const msg = document.getElementById('authMsg')
-  const btn = document.getElementById('loginBtn')
+  const msg = document.getElementById('authMsg'), btn = document.getElementById('loginBtn')
   const show = (txt, ok) => { msg.textContent = txt; msg.className = 'auth-msg show ' + (ok ? 'ok' : 'err') }
   btn.disabled = true; btn.textContent = '⏳ Entrando…'
   const { error } = await sb.auth.signInWithPassword({ email, password })
-  if (error){
-    btn.disabled = false; btn.textContent = 'Entrar →'
-    const map = { 'Invalid login credentials': 'Correo o contraseña incorrectos.', 'Email not confirmed': 'Tu correo aún no está confirmado.' }
-    show('❌ ' + (map[error.message] || error.message), false)
-    return
-  }
-  show('✅ Conectado… abriendo tu panel', true)
-  location.hash = '#/dueno'
+  if (error){ btn.disabled = false; btn.textContent = 'Entrar →'; const map = { 'Invalid login credentials': 'Correo o contraseña incorrectos.', 'Email not confirmed': 'Tu correo aún no está confirmado.' }; show('❌ ' + (map[error.message] || error.message), false); return }
+  show('✅ Conectado… abriendo tu panel', true); location.hash = '#/dueno'
 }
 
-/* ============ PANEL DEL DUEÑO ============ */
+/* ============ PANEL DEL DUEÑO · gestión de colegios ============ */
+let D = { perfil: null, colegios: [], alumnos: [], pagos: [], perfiles: [] }
+let W = null // wizard state
+
 async function renderDueno(perfil){
+  D.perfil = perfil
   app.innerHTML = `
   <div class="app-shell">
     <aside class="side">
@@ -307,132 +268,246 @@ async function renderDueno(perfil){
       <a class="nav-i on" href="#/dueno">🏛️ Panel del dueño</a>
       <a class="nav-i" href="#/">🌐 Ver landing</a>
       <div class="side-foot">
-        <div class="me">
-          <span class="av">${esc((perfil.nombre || 'J').trim().charAt(0).toUpperCase())}</span>
-          <span><span class="mn">${esc(perfil.nombre)}</span><br><span class="mr">👑 Dueño</span></span>
-        </div>
-        <button class="btn btn-ghost btn-sm" data-action="logout" style="width:100%;color:#E9F5EE;border-color:rgba(255,255,255,.3)">Cerrar sesión</button>
+        <div class="me"><span class="av">${esc((perfil.nombre || 'J').trim().charAt(0).toUpperCase())}</span><span><span class="mn">${esc(perfil.nombre)}</span><br><span class="mr">👑 Dueño</span></span></div>
+        <button class="btn btn-ghost btn-sm" data-action="dueno-logout" style="width:100%;color:#E9F5EE;border-color:rgba(255,255,255,.3)">Cerrar sesión</button>
       </div>
     </aside>
     <main class="main">
       <div class="topbar">
-        <div>
-          <div class="crumb">edusistema / panel del dueño</div>
-          <h1>Hola, ${esc(perfil.nombre)} 👋</h1>
-        </div>
+        <div><div class="crumb">edusistema / panel del dueño</div><h1>Hola, ${esc(perfil.nombre)} 👋</h1></div>
         <div class="spacer"></div>
-        <button class="btn btn-sm" data-action="seed">🌱 Sembrar datos de demo</button>
-        <button class="btn btn-sm btn-ghost" data-action="reload">↻ Actualizar</button>
+        <button class="btn btn-sm btn-base" data-action="dueno-new">＋ Nuevo colegio</button>
+        <button class="btn btn-sm btn-ghost" data-action="dueno-reload">↻ Actualizar</button>
       </div>
-      <div id="panelBody"><div class="empty"><div class="eico">⏳</div><h3>Cargando tus colegios…</h3></div></div>
+      <div id="duenoBody"><div class="empty"><div class="eico">⏳</div><h3>Cargando…</h3></div></div>
     </main>
   </div>`
-  await paintPanel()
+  await loadDueno()
 }
 
-async function paintPanel(){
-  const body = document.getElementById('panelBody')
-  if (!body) return
-  const [{ data: colegios }, { data: alumnos }, { data: pagos }] = await Promise.all([
-    sb.from('colegios').select('*'),
-    sb.from('alumnos').select('*'),
-    sb.from('pagos').select('*')
+async function loadDueno(){
+  const [{ data: colegios }, { data: alumnos }, { data: pagos }, { data: perfiles }] = await Promise.all([
+    sb.from('colegios').select('*').order('creado_en', { ascending: false }),
+    sb.from('alumnos').select('*'), sb.from('pagos').select('*'),
+    sb.from('perfiles').select('id,colegio_id,nombre,rol').eq('rol', 'admin')
   ])
-  const cols = colegios || [], als = alumnos || [], pgs = pagos || []
-  const nameOf = id => (als.find(a => a.id === id) || {}).nombre || '—'
+  D.colegios = colegios || []; D.alumnos = alumnos || []; D.pagos = pagos || []; D.perfiles = perfiles || []
+  paintDueno()
+}
 
-  const totAlum = als.length
-  const totRecaudado = pgs.filter(p => p.estado === 'pagado').reduce((s, p) => s + Number(p.monto || 0), 0)
-  const totPend = pgs.filter(p => p.estado !== 'pagado').length
+function paintDueno(){
+  const body = document.getElementById('duenoBody'); if (!body) return
+  const cols = D.colegios
+  const totAlum = D.alumnos.length
+  const totRec = D.pagos.filter(p => p.estado === 'pagado').reduce((s, p) => s + Number(p.monto || 0), 0)
+  const totPend = D.pagos.filter(p => p.estado !== 'pagado').length
+  const kpis = `<div class="kpis">
+    <div class="kpi k1 rv"><span class="kico">🏫</span><div class="kl">Colegios</div><div class="kv">${cols.length}</div><div class="ks">en la plataforma</div></div>
+    <div class="kpi k2 rv" style="--d:.06s"><span class="kico">🧒</span><div class="kl">Alumnos</div><div class="kv">${totAlum}</div><div class="ks">matriculados</div></div>
+    <div class="kpi k3 rv" style="--d:.12s"><span class="kico">💰</span><div class="kl">Recaudado</div><div class="kv" style="font-size:1.7rem">${money(totRec)}</div><div class="ks">pagos confirmados</div></div>
+    <div class="kpi k4 rv" style="--d:.18s"><span class="kico">⏰</span><div class="kl">Pagos pendientes</div><div class="kv">${totPend}</div><div class="ks">por cobrar</div></div>
+  </div>`
 
-  const kpis = `
-    <div class="kpis">
-      <div class="kpi k1 rv"><span class="kico">🏫</span><div class="kl">Colegios</div><div class="kv">${cols.length}</div><div class="ks">en la plataforma</div></div>
-      <div class="kpi k2 rv" style="--d:.06s"><span class="kico">🧒</span><div class="kl">Alumnos</div><div class="kv">${totAlum}</div><div class="ks">matriculados</div></div>
-      <div class="kpi k3 rv" style="--d:.12s"><span class="kico">💰</span><div class="kl">Recaudado</div><div class="kv" style="font-size:1.7rem">${money(totRecaudado)}</div><div class="ks">pagos confirmados</div></div>
-      <div class="kpi k4 rv" style="--d:.18s"><span class="kico">⏰</span><div class="kl">Pagos pendientes</div><div class="kv">${totPend}</div><div class="ks">por cobrar</div></div>
-    </div>`
-
-  let cards
   if (cols.length === 0){
-    cards = `<div class="empty rv"><div class="eico">🏫</div><h3>Aún no hay colegios</h3><p>Crea tu primer colegio en Supabase (tabla <code>colegios</code>) o siembra datos de demo para verlo cobrar vida.</p><button class="btn btn-base" data-action="seed">🌱 Sembrar datos de demo</button></div>`
-  } else {
-    cards = `<div class="panel-head rv"><h2>Tus colegios</h2><span class="ph-note">toca "Ver caja" para desplegar los pagos</span></div>
-    <div class="colegios">` + cols.map((c, i) => {
-      const cAls = als.filter(a => a.colegio_id === c.id)
-      const cPgs = pgs.filter(p => p.colegio_id === c.id)
-      const recaudado = cPgs.filter(p => p.estado === 'pagado').reduce((s, p) => s + Number(p.monto || 0), 0)
-      const pend = cPgs.filter(p => p.estado !== 'pagado').length
-      const txs = cPgs.slice(0, 30).map(p => `
-        <div class="tx">
-          <span><span class="who">${esc(nameOf(p.alumno_id))}</span> <span class="pill ${p.estado}">${p.estado}</span><br><span class="meta">${esc(p.concepto || 'pensión')} · ${esc(p.metodo || '—')}</span></span>
-          <span class="amt ${p.estado === 'pagado' ? 'plus' : 'minus'}">${p.estado === 'pagado' ? '+' : '−'}${money(p.monto)}</span>
-        </div>`).join('') || `<div class="tx"><span class="meta">Sin pagos registrados todavía.</span></div>`
-      return `
-      <article class="ccard rv" style="--d:${Math.min(i * .06, .3)}s" data-colegio="${c.id}">
-        <div class="ccard-top">
-          <span class="cico">🏫</span>
-          <div><h3>${esc(c.nombre)}</h3><span class="cplan">plan ${esc(c.plan || 'semillero')}</span></div>
-          <button class="btn btn-sm copen" data-action="toggle-caja">Ver caja ▾</button>
-        </div>
-        <div class="cmetrics">
-          <div class="cmet"><b>${cAls.length}</b><span>alumnos</span></div>
-          <div class="cmet"><b style="color:var(--admin-ink)">${money(recaudado)}</b><span>recaudado</span></div>
-          <div class="cmet ${pend ? 'warn' : ''}"><b>${pend}</b><span>pendientes</span></div>
-        </div>
-        <div class="caja-detail">${txs}</div>
-      </article>`
-    }).join('') + `</div>`
+    body.innerHTML = kpis + `<div class="empty-state rv">
+      <div class="es-ring"><span class="logo-badge gold" style="width:64px;height:64px;font-size:1.8rem;border-radius:14px">E</span></div>
+      <h3>Aún no has dado de alta ningún colegio</h3>
+      <p>Crea el primero y asígnale su plan y su director. Desde ese momento, su administrador entrará con su propio login y verá únicamente su colegio.</p>
+      <button class="btn btn-base pulse-soft" data-action="dueno-new">＋ Crear mi primer colegio</button>
+    </div>`
+    initReveals(); return
   }
 
-  body.innerHTML = kpis + cards
+  const cards = cols.map((c, i) => {
+    const cAls = D.alumnos.filter(a => a.colegio_id === c.id)
+    const cPgs = D.pagos.filter(p => p.colegio_id === c.id)
+    const rec = cPgs.filter(p => p.estado === 'pagado').reduce((s, p) => s + Number(p.monto || 0), 0)
+    const pend = cPgs.filter(p => p.estado !== 'pagado').length
+    const dir = D.perfiles.find(p => p.colegio_id === c.id)
+    const st = c.estado || 'prueba'
+    return `<article class="ccard rv" style="--d:${Math.min(i * .06, .3)}s">
+      <div class="ccard-top">
+        <span class="cico">🏫</span>
+        <div style="flex:1;min-width:0">
+          <h3>${esc(c.nombre)}</h3>
+          <span class="cplan">${esc(c.plan || 'semillero')}</span>
+          ${c.codigo_modular ? `<span class="cmod">CM ${esc(c.codigo_modular)}</span>` : ''}
+        </div>
+        <span class="state-chip ${st}">${st === 'activo' ? '● Activo' : st === 'suspendido' ? '○ Suspendido' : '◐ En prueba'}</span>
+      </div>
+      <div class="cmetrics">
+        <div class="cmet"><b>${cAls.length}</b><span>alumnos</span></div>
+        <div class="cmet"><b style="color:var(--admin-ink)">${money(rec)}</b><span>recaudado</span></div>
+        <div class="cmet ${pend ? 'warn' : ''}"><b>${pend}</b><span>pendientes</span></div>
+      </div>
+      <div class="ccard-foot">
+        <span class="ccard-dir">${dir ? '👤 ' + esc(dir.nombre || 'Director') : '<em>sin director</em>'}</span>
+        <span class="ccard-act">
+          <button class="btn btn-sm" data-action="dueno-edit" data-id="${c.id}">✏️ Editar</button>
+          <button class="btn btn-sm btn-ghost dot-btn" data-action="dueno-menu" data-id="${c.id}" aria-label="Más">⋯</button>
+        </span>
+      </div>
+      <div class="ccard-menu" id="menu-${c.id}">
+        <button data-action="dueno-edit" data-id="${c.id}">✏️ Editar ficha</button>
+        <button data-action="dueno-toggle" data-id="${c.id}">${st === 'suspendido' ? '▶ Reactivar' : '⏸ Suspender'}</button>
+        <button class="danger" data-action="dueno-delete" data-id="${c.id}">🗑 Eliminar colegio</button>
+      </div>
+    </article>`
+  }).join('')
+  body.innerHTML = kpis + `<div class="panel-head rv"><h2>Tus colegios</h2><span class="ph-note">${cols.length} registrado(s) · el director de cada uno entra con su propio login</span></div><div class="colegios">${cards}</div>`
   initReveals()
 }
 
-async function seedDemo(){
-  const { data: cols } = await sb.from('colegios').select('*').limit(1)
-  if (!cols || !cols.length){ alert('Crea primero un colegio en la tabla "colegios" de Supabase.'); return }
-  const colegio = cols[0]
-  const { data: ya } = await sb.from('alumnos').select('id').eq('colegio_id', colegio.id).limit(1)
-  if (ya && ya.length && !confirm('Ya hay alumnos de demo en "' + colegio.nombre + '". ¿Añadir otro lote?')) return
-
-  const nombres = ['Lucía Ramos','Mateo Guerra','Valeria Soto','Diego Paredes','Sofía Medina','Bruno Quispe']
-  const grados = ['3º','3º','4º','4º','5º','5º']
-  const secs = ['A','B','A','B','A','B']
-  const rows = nombres.map((n, i) => ({ colegio_id: colegio.id, nombre: n, grado: grados[i], seccion: secs[i], pension_mensual: 180, estado: 'activo' }))
-  const { data: ins, error } = await sb.from('alumnos').insert(rows).select('id,nombre')
-  if (error){ alert('Error al sembrar alumnos: ' + error.message); return }
-
-  const pagos = []
-  ins.forEach((a, i) => {
-    pagos.push({ colegio_id: colegio.id, alumno_id: a.id, concepto: 'pensión julio', monto: 180, metodo: ['efectivo','yape','tarjeta','transferencia'][i % 4], estado: 'pagado' })
-    if (i % 2 === 0) pagos.push({ colegio_id: colegio.id, alumno_id: a.id, concepto: 'pensión agosto', monto: 180, metodo: '—', estado: i % 4 === 0 ? 'vencido' : 'pendiente' })
-  })
-  const { error: e2 } = await sb.from('pagos').insert(pagos)
-  if (e2){ alert('Alumnos creados, pero error en pagos: ' + e2.message) }
-  await paintPanel()
+/* ---------- wizard ---------- */
+function openWizard(mode, id){
+  const c = mode === 'editar' ? (D.colegios.find(x => x.id === id) || {}) : {}
+  const dir = mode === 'editar' ? D.perfiles.find(p => p.colegio_id === id) : null
+  W = { mode, step: 1, colegioId: id || null, data: {
+    nombre: c.nombre || '', documento: c.documento || '', codigo_modular: c.codigo_modular || '',
+    direccion: c.direccion || '', telefono: c.telefono || '', correo_contacto: c.correo_contacto || '',
+    plan: c.plan || 'semillero', estado: c.estado || 'prueba', inicio_contrato: c.inicio_contrato || '', alumnos_contratados: c.alumnos_contratados ?? '',
+    dir_nombre: dir ? (dir.nombre || '') : '', dir_email: '', dir_pass: '', dir_skip: false
+  }}
+  paintWizard()
+  document.getElementById('wzModal').classList.add('open')
+}
+function closeWizard(){ document.getElementById('wzModal').classList.remove('open'); W = null }
+function maxStep(){ return W.mode === 'editar' ? 2 : 3 }
+function paintWizard(){
+  const m = document.getElementById('wzModal')
+  if (!m){ // inyectar modal una sola vez
+    const node = document.createElement('div'); node.id = 'wzModal'; node.className = 'wz-overlay'
+    node.innerHTML = `<div class="wz-back" data-action="wz-close"></div><div class="wz-card"><div class="wz-head"><h3 id="wzTitle">—</h3><button class="wz-x" data-action="wz-close">✕</button></div><div class="wz-stepper" id="wzStepper"></div><div class="wz-body" id="wzBody"></div><div class="wz-foot" id="wzFoot"></div></div>`
+    document.body.appendChild(node)
+  }
+  const total = maxStep()
+  document.getElementById('wzTitle').textContent = W.mode === 'editar' ? 'Editar colegio' : 'Nuevo colegio'
+  document.getElementById('wzStepper').innerHTML = ['Colegio', 'Plan y contrato', 'Director'].slice(0, total).map((label, i) => {
+    const n = i + 1, cls = n < W.step ? 'done' : n === W.step ? 'on' : ''
+    return `<div class="wz-node ${cls}"><span class="wz-dot">${n < W.step ? '✓' : n}</span><span class="wz-lbl">${label}</span></div>${n < total ? '<span class="wz-line ' + (n < W.step ? 'fill' : '') + '"></span>' : ''}`
+  }).join('')
+  document.getElementById('wzBody').innerHTML = wizardPane()
+  const foot = document.getElementById('wzFoot')
+  foot.innerHTML = `<button class="btn btn-ghost" data-action="wz-close">Cancelar</button><span class="spacer"></span>${W.step > 1 ? '<button class="btn" data-action="wz-back">← Atrás</button>' : ''}<button class="btn btn-base" data-action="wz-next">${W.step === total ? (W.mode === 'editar' ? 'Guardar cambios ✓' : 'Crear colegio ✓') : 'Siguiente →'}</button>`
+}
+function wizardPane(){
+  const d = W.data
+  if (W.step === 1){
+    return `<div class="wz-pane" data-step="1">
+      <div class="f2"><div class="field full"><label>Nombre del colegio *</label><input id="w_nombre" value="${esc(d.nombre)}" placeholder="Ej. Corazón de Santa Maria"></div></div>
+      <div class="f2"><div class="field"><label>RUC / documento fiscal</label><input id="w_documento" value="${esc(d.documento)}" placeholder="20123456789"></div><div class="field"><label>Código modular (SIAGIE)</label><input id="w_codigo_modular" value="${esc(d.codigo_modular)}" placeholder="123456"></div></div>
+      <div class="field full"><label>Dirección</label><input id="w_direccion" value="${esc(d.direccion)}" placeholder="Av. …"></div>
+      <div class="f2"><div class="field"><label>Teléfono</label><input id="w_telefono" value="${esc(d.telefono)}" placeholder="+51 999 …"></div><div class="field"><label>Correo de contacto</label><input id="w_correo_contacto" value="${esc(d.correo_contacto)}" placeholder="direccion@colegio.edu"></div></div>
+    </div>`
+  }
+  if (W.step === 2){
+    return `<div class="wz-pane" data-step="2">
+      <label class="wz-label">Plan</label>
+      <div class="plan-pick">${PLANES.map(([v, ic, nm, pr]) => `<label class="plan-opt ${d.plan === v ? 'sel' : ''}"><input type="radio" name="w_plan" value="${v}" ${d.plan === v ? 'checked' : ''}><span class="po-ic">${ic}</span><span class="po-nm">${nm}</span><span class="po-pr">${pr}</span><span class="po-ck">✓</span></label>`).join('')}</div>
+      <label class="wz-label">Estado</label>
+      <div class="seg">${ESTADOS.map(([v, l]) => `<label class="seg-opt ${d.estado === v ? 'sel ' + v : ''}"><input type="radio" name="w_estado" value="${v}" ${d.estado === v ? 'checked' : ''}>${l}</label>`).join('')}</div>
+      <div class="f2" style="margin-top:18px"><div class="field"><label>Inicio del contrato</label><input id="w_inicio_contrato" type="date" value="${esc(d.inicio_contrato)}"></div><div class="field"><label>Alumnos contratados</label><input id="w_alumnos_contratados" type="number" min="0" value="${esc(d.alumnos_contratados)}" placeholder="300"></div></div>
+      ${W.mode === 'editar' ? `<div class="wz-info">👤 Director actual: <strong>${esc(D.perfiles.find(p => p.colegio_id === W.colegioId)?.nombre || '—')}</strong><br><span class="dim">El acceso del director se gestiona desde Supabase → Authentication por ahora.</span></div>` : ''}
+    </div>`
+  }
+  // step 3 (solo crear)
+  return `<div class="wz-pane" data-step="3">
+    <p class="wz-intro">Este usuario entrará como <strong>director</strong> del colegio y verá <em>solo</em> este colegio. Puedes saltarlo y crearlo después.</p>
+    <label class="wz-check"><input type="checkbox" id="w_dir_skip" ${d.dir_skip ? 'checked' : ''}> Saltar este paso (crear el director más tarde)</label>
+    <div class="wz-dirbox ${d.dir_skip ? 'off' : ''}">
+      <div class="field full"><label>Nombre del director *</label><input id="w_dir_nombre" value="${esc(d.dir_nombre)}" placeholder="Rosa Mendoza"></div>
+      <div class="field full"><label>Correo de acceso *</label><input id="w_dir_email" type="email" value="${esc(d.dir_email)}" placeholder="rosa@colegio.edu"></div>
+      <div class="field full"><label>Contraseña temporal * <button type="button" class="mini-btn" data-action="wz-randpass">🎲 generar</button></label><input id="w_dir_pass" type="text" value="${esc(d.dir_pass)}" placeholder="mínimo 6 caracteres"></div>
+    </div>
+    <div class="wz-summary"><strong>Resumen</strong><br>${esc(d.nombre || '—')} · plan <em>${esc(d.plan)}</em> · ${esc(d.estado)}${d.inicio_contrato ? ' · desde ' + fmtDate(d.inicio_contrato) : ''}</div>
+  </div>`
+}
+function readPane(){
+  const g = id => { const el = document.getElementById(id); return el ? el.value : undefined }
+  const r = name => { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : undefined }
+  if (W.step === 1){ Object.assign(W.data, { nombre: g('w_nombre'), documento: g('w_documento'), codigo_modular: g('w_codigo_modular'), direccion: g('w_direccion'), telefono: g('w_telefono'), correo_contacto: g('w_correo_contacto') }) }
+  else if (W.step === 2){ Object.assign(W.data, { plan: r('w_plan') || W.data.plan, estado: r('w_estado') || W.data.estado, inicio_contrato: g('w_inicio_contrato'), alumnos_contratados: g('w_alumnos_contratados') }) }
+  else { const sk = document.getElementById('w_dir_skip'); W.data.dir_skip = !!sk && sk.checked; if (!W.data.dir_skip) Object.assign(W.data, { dir_nombre: g('w_dir_nombre'), dir_email: g('w_dir_email'), dir_pass: g('w_dir_pass') }) }
+}
+function validateStep(){
+  const d = W.data
+  if (W.step === 1){ if (!d.nombre || !d.nombre.trim()){ toast('El nombre del colegio es obligatorio', 'err'); return false } return true }
+  if (W.step === 2) return true
+  if (W.step === 3){ if (d.dir_skip) return true; if (!d.dir_nombre || !d.dir_nombre.trim()){ toast('Falta el nombre del director', 'err'); return false } if (!d.dir_email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.dir_email)){ toast('Correo del director inválido', 'err'); return false } if (!d.dir_pass || d.dir_pass.length < 6){ toast('La contraseña debe tener al menos 6 caracteres', 'err'); return false } return true }
+  return true
+}
+function randPass(){ const a = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'; let s = ''; for (let i = 0; i < 10; i++) s += a[Math.floor(Math.random() * a.length)]; return s + '!' }
+async function wizardNext(){
+  readPane()
+  if (!validateStep()) return
+  if (W.step < maxStep()){ W.step++; paintWizard(); return }
+  // submit
+  const btn = document.querySelector('#wzFoot [data-action="wz-next"]'); btn.disabled = true; btn.textContent = '⏳ Guardando…'
+  if (W.mode === 'editar'){
+    const { error } = await sb.from('colegios').update({
+      nombre: W.data.nombre.trim(), documento: W.data.documento || null, codigo_modular: W.data.codigo_modular || null,
+      direccion: W.data.direccion || null, telefono: W.data.telefono || null, correo_contacto: W.data.correo_contacto || null,
+      plan: W.data.plan, estado: W.data.estado, inicio_contrato: W.data.inicio_contrato || null, alumnos_contratados: Number(W.data.alumnos_contratados) || 0
+    }).eq('id', W.colegioId)
+    btn.disabled = false
+    if (error){ toast('Error: ' + error.message, 'err'); return }
+    toast('Colegio actualizado ✓'); closeWizard(); await loadDueno(); return
+  }
+  // crear vía Edge Function
+  const body = {
+    colegio: { nombre: W.data.nombre.trim(), documento: W.data.documento, codigo_modular: W.data.codigo_modular, direccion: W.data.direccion, telefono: W.data.telefono, correo_contacto: W.data.correo_contacto, plan: W.data.plan, estado: W.data.estado, inicio_contrato: W.data.inicio_contrato || null, alumnos_contratados: Number(W.data.alumnos_contratados) || 0 },
+    director: W.data.dir_skip ? {} : { nombre: W.data.dir_nombre.trim(), email: W.data.dir_email.trim(), password: W.data.dir_pass }
+  }
+  const { data, error } = await sb.functions.invoke('crear-colegio', { body })
+  btn.disabled = false
+  if (error){ toast('Error de conexión con el servidor: ' + (error.message || ''), 'err'); return }
+  if (data && data.error){ toast('❌ ' + data.error, 'err'); return }
+  toast('✅ Colegio creado' + (data && data.directorId ? ' · director listo para entrar' : ''), 'ok')
+  closeWizard(); await loadDueno()
+}
+async function toggleEstado(id){
+  const c = D.colegios.find(x => x.id === id); if (!c) return
+  const nuevo = (c.estado === 'suspendido') ? 'activo' : 'suspendido'
+  const { error } = await sb.from('colegios').update({ estado: nuevo }).eq('id', id)
+  if (error){ toast('Error: ' + error.message, 'err'); return }
+  toast(nuevo === 'suspendido' ? 'Colegio suspendido' : 'Colegio reactivado'); await loadDueno()
+}
+async function deleteColegio(id){
+  const c = D.colegios.find(x => x.id === id); if (!c) return
+  const { count: ca } = await sb.from('alumnos').select('id', { count: 'exact', head: true }).eq('colegio_id', id)
+  const { count: cp } = await sb.from('pagos').select('id', { count: 'exact', head: true }).eq('colegio_id', id)
+  if ((ca || 0) > 0 || (cp || 0) > 0){ toast('No se puede eliminar: el colegio tiene alumnos o pagos registrados', 'err'); return }
+  if (!confirm(`¿Eliminar el colegio "${c.nombre}"? Esta acción no se puede deshacer.`)) return
+  const { error } = await sb.from('colegios').delete().eq('id', id)
+  if (error){ toast('Error: ' + error.message, 'err'); return }
+  toast('Colegio eliminado'); await loadDueno()
 }
 
-/* ============ delegación global ============ */
-app.addEventListener('click', e => {
-  const el = e.target.closest('[data-action]')
-  if (!el) return
+/* ---------- delegación global ---------- */
+document.addEventListener('click', e => {
+  // cerrar menús si clic fuera
+  const inMenu = e.target.closest('.ccard-menu') || e.target.closest('[data-action="dueno-menu"]')
+  if (!inMenu) document.querySelectorAll('.ccard-menu.open').forEach(m => m.classList.remove('open'))
+  const el = e.target.closest('[data-action]'); if (!el) return
   const act = el.dataset.action
-  if (act === 'logout') sb.auth.signOut().then(() => { location.hash = '#/' })
-  if (act === 'reload') paintPanel()
-  if (act === 'seed') seedDemo()
-  if (act === 'toggle-caja'){
-    const card = el.closest('.ccard')
-    const open = card.classList.toggle('open')
-    el.textContent = open ? 'Ocultar caja ▴' : 'Ver caja ▾'
-  }
+  if (act === 'dueno-logout') sb.auth.signOut().then(() => { location.hash = '#/' })
+  else if (act === 'dueno-reload') loadDueno()
+  else if (act === 'dueno-new') openWizard('crear')
+  else if (act === 'dueno-edit') openWizard('editar', el.dataset.id)
+  else if (act === 'dueno-menu'){ const m = document.getElementById('menu-' + el.dataset.id); document.querySelectorAll('.ccard-menu.open').forEach(x => { if (x !== m) x.classList.remove('open') }); m.classList.toggle('open') }
+  else if (act === 'dueno-toggle') toggleEstado(el.dataset.id)
+  else if (act === 'dueno-delete') deleteColegio(el.dataset.id)
+  else if (act === 'wz-close') closeWizard()
+  else if (act === 'wz-back'){ readPane(); W.step--; paintWizard() }
+  else if (act === 'wz-next') wizardNext()
+  else if (act === 'wz-randpass'){ const i = document.getElementById('w_dir_pass'); if (i){ i.value = randPass(); W.data.dir_pass = i.value } }
 })
-app.addEventListener('submit', e => {
-  if (e.target.id === 'loginForm'){
-    e.preventDefault()
-    doLogin(document.getElementById('email').value.trim(), document.getElementById('pass').value)
-  }
+document.addEventListener('change', e => {
+  if (e.target.name === 'w_plan'){ W.data.plan = e.target.value; document.querySelectorAll('.plan-opt').forEach(o => o.classList.toggle('sel', o.querySelector('input').checked)) }
+  if (e.target.name === 'w_estado'){ W.data.estado = e.target.value; document.querySelectorAll('.seg-opt').forEach(o => { const v = o.querySelector('input').value; o.classList.toggle('sel', o.querySelector('input').checked); o.classList.toggle(v, o.querySelector('input').checked) }) }
+  if (e.target.id === 'w_dir_skip'){ W.data.dir_skip = e.target.checked; const box = document.querySelector('.wz-dirbox'); if (box) box.classList.toggle('off', e.target.checked) }
 })
+document.addEventListener('submit', e => { if (e.target.id === 'loginForm'){ e.preventDefault(); doLogin(document.getElementById('email').value.trim(), document.getElementById('pass').value) } })
 
 /* ============ arranque ============ */
 resolve()
