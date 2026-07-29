@@ -8,6 +8,7 @@ let revealObs = null
 /* ============ utilidades ============ */
 const money = n => '$ ' + Number(n || 0).toLocaleString('es-PE')
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
+const WM = (dark) => `<span class="wm lg${dark ? ' on-dark' : ''}"><span class="a">Edu</span><span class="b">Sistema</span></span>`
 function clearTimers(){ if (deckTimer) clearInterval(deckTimer); deckTimer = null }
 function initReveals(){
   if (revealObs) revealObs.disconnect()
@@ -43,18 +44,16 @@ async function resolve(){
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' })
 }
 addEventListener('hashchange', resolve)
-
-/* reacciona a cierre de sesión desde cualquier parte */
 sb.auth.onAuthStateChange((event) => { if (event === 'SIGNED_OUT' && route() === 'dueno') location.hash = '#/' })
 
-/* ============ HEADER / FOOTER compartidos ============ */
+/* ============ HEADER / FOOTER ============ */
 function headerHTML(active){
   const links = active === 'landing'
     ? `<nav class="nav-links"><a href="#/modulos">Módulos</a><a href="#/roles">Roles</a><a href="#/demo">Demo</a></nav>`
     : ''
   return `<header class="site-header" id="topbar">
     <div class="wrap nav">
-      <a class="logo" href="#/"><span class="logo-badge">E</span>Edu<b>Sistema</b></a>
+      <a class="logo" href="#/"><span class="logo-badge">E</span>${WM(false)}</a>
       ${links}
       <div class="nav-cta">
         <a class="btn btn-ghost btn-sm" href="#/login">Iniciar sesión</a>
@@ -68,7 +67,7 @@ function footerHTML(){
     <div class="wrap">
       <div class="f-grid">
         <div class="f-brand">
-          <a class="logo" href="#/" style="color:#fff"><span class="logo-badge">E</span>Edu<b style="color:var(--yellow)">Sistema</b></a>
+          <a class="logo" href="#/" style="margin-bottom:4px"><span class="logo-badge gold">E</span>${WM(true)}</a>
           <p>El sistema operativo del colegio moderno: finanzas, academia, IA y educación financiera en un solo lugar.</p>
         </div>
         <div><h4>Módulos</h4><a href="#/modulos">EduAdmin</a><a href="#/modulos">EduAssist</a><a href="#/modulos">EduIA</a><a href="#/modulos">EduBank</a></div>
@@ -92,7 +91,7 @@ function renderLanding(){
       <h1>Todo tu colegio,<br><span class="hl">en un solo sistema.</span></h1>
       <p class="lead">Finanzas, asistencia, planificación con IA y educación financiera para tus estudiantes. Cuatro módulos que comparten un mismo login, los mismos datos y una sola verdad.</p>
       <div class="cta-row">
-        <a class="btn btn-y" href="#/login">Iniciar sesión →</a>
+        <a class="btn btn-base" href="#/login">Iniciar sesión →</a>
         <a class="btn" href="#/modulos">Ver los 4 módulos ↓</a>
       </div>
       <div class="stats">
@@ -129,14 +128,14 @@ function renderLanding(){
         </section>
         <section class="mod" data-m="ia">
           <span class="mod-title">EduIA · Generando sesión…</span>
-          <div style="background:#fff;border:1.5px solid rgba(21,42,34,.2);border-radius:9px;padding:14px;font-size:.88rem;border-left:6px solid var(--ia)">
+          <div style="background:#fff;border:1.5px solid rgba(14,42,28,.2);border-radius:9px;padding:14px;font-size:.88rem;border-left:6px solid var(--ia)">
             <strong>Sesión · 3ºB</strong><br>Título: Fracciones en la vida diaria<br>Área: Matemática · 90 min<br><br>Inicio: problema real — repartir una pizza…
           </div>
           <div class="chip-row"><span class="chip">📄 Programación</span><span class="chip">📊 Rúbricas</span><span class="chip">🎯 Unidades</span></div>
         </section>
         <section class="mod" data-m="bank">
           <span class="mod-title">EduBank · cuenta de Valeria (3ºB)</span>
-          <div style="background:var(--bankbg);border-radius:9px;padding:14px">
+          <div style="background:#fff;border:1.5px solid rgba(14,42,28,.2);border-radius:9px;padding:14px">
             <strong>🎯 Meta: laptop nueva</strong>
             <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:.76rem;margin:8px 0 6px"><span>$ 340 de $ 500</span><span>68%</span></div>
             <div class="bar gold"><i style="width:68%"></i></div>
@@ -159,50 +158,32 @@ function renderLanding(){
       <div class="sec-head rv">
         <span class="kicker">Los 4 módulos</span>
         <h2>Un ecosistema, no cuatro apps sueltas</h2>
-        <p>Cada módulo resuelve un dolor distinto del colegio — y todos se alimentan de los mismos datos.</p>
+        <p>Cada módulo resuelve un dolor distinto del colegio — y todos se alimentan de los mismos datos. Una marca, cuatro especialistas.</p>
       </div>
       <div class="bento">
-        <article class="bcard b-admin rv" style="--c:var(--admin)">
+        <article class="bcard b-admin rv">
           <span class="btag">MÓDULO 01 · FINANZAS</span>
-          <h3>EduAdmin</h3>
+          <img class="mod-lockup" src="/logos/eduadmin.png" alt="EduAdmin — administración escolar inteligente" onerror="this.style.display='none'">
           <p class="sub">La caja del colegio bajo control: pensiones, matrículas, recibos y reportes — sin hojas de cálculo.</p>
-          <ul class="feat">
-            <li>Control de pensiones y morosidad con alertas por aula</li>
-            <li>Recordatorios de pago automáticos a las familias</li>
-            <li>Recibos electrónicos y pagos en línea</li>
-            <li>Reportes para dirección y para la UGEL en un clic</li>
-          </ul>
+          <a class="link-mod" href="#/login">Conocer módulo →</a>
         </article>
-        <article class="bcard b-assist rv" style="--c:var(--assist);--d:.1s">
+        <article class="bcard b-assist rv" style="--d:.1s">
           <span class="btag">MÓDULO 02 · ACADÉMICO</span>
-          <h3>EduAssist</h3>
-          <p class="sub">Horarios, asistencia y calificaciones en el bolsillo del docente.</p>
-          <ul class="feat">
-            <li>Pase de lista en segundos, incluso sin internet</li>
-            <li>Notas por competencia con promedios automáticos</li>
-            <li>Horarios sin choques de ambiente</li>
-            <li>Boletas listas para imprimir o enviar</li>
-          </ul>
+          <img class="mod-lockup" src="/logos/eduassist.png" alt="EduAssist — asistencia y calificaciones" onerror="this.style.display='none'">
+          <p class="sub">Horarios, pase de lista y notas en el bolsillo del docente, con boletas listas para la familia.</p>
+          <a class="link-mod" href="#/login">Conocer módulo →</a>
         </article>
-        <article class="bcard b-ia rv" style="--c:var(--ia)">
+        <article class="bcard b-ia rv">
           <span class="btag">MÓDULO 03 · IA DOCENTE</span>
-          <h3>EduIA</h3>
-          <p class="sub">Sesiones, programaciones y documentos pedagógicos generados con IA, alineados al currículo.</p>
-          <ul class="feat">
-            <li>De 90 minutos a 4 por sesión</li>
-            <li>Conoce tu aula con datos de EduAssist</li>
-            <li>Rúbricas e informes en un clic</li>
-          </ul>
+          <img class="mod-lockup" src="/logos/eduia.png" alt="EduIA — inteligencia artificial educativa" onerror="this.style.display='none'">
+          <p class="sub">Sesiones, programaciones y rúbricas generadas con IA, alineadas al currículo y a tu aula real.</p>
+          <a class="link-mod" href="#/login">Conocer módulo →</a>
         </article>
-        <article class="bcard b-bank rv" style="--c:var(--bank);--d:.1s">
+        <article class="bcard b-bank rv" style="--d:.1s">
           <span class="btag">MÓDULO 04 · ED. FINANCIERA</span>
-          <h3>EduBank</h3>
+          <img class="mod-lockup" src="/logos/edubank.png" alt="EduBank — gestión financiera escolar" onerror="this.style.display='none'">
           <p class="sub">Un banco-escuela con IA donde los estudiantes ahorran, presupuestan e invierten con monedas virtuales.</p>
-          <ul class="feat">
-            <li>Cero riesgo real: monedas virtuales</li>
-            <li>Metas de ahorro con progreso</li>
-            <li>Un banquero-IA que responde dudas</li>
-          </ul>
+          <a class="link-mod" href="#/login">Conocer módulo →</a>
         </article>
       </div>
     </div>
@@ -217,15 +198,15 @@ function renderLanding(){
       </div>
       <div class="roles">
         <div class="role-card rv">
-          <div class="role-row"><span class="role-ico" style="background:var(--board);color:var(--yellow)">👑</span><span class="who">Dueño</span><span class="see">Ve todos los colegios y la caja global</span></div>
-          <div class="role-row"><span class="role-ico" style="background:rgba(14,124,91,.15)">🧑💼</span><span class="who">Administración</span><span class="see">Caja, pensiones y recibos de su colegio</span></div>
-          <div class="role-row"><span class="role-ico" style="background:rgba(29,91,216,.12)">🧑‍🏫</span><span class="who">Docente</span><span class="see">Pase de lista, notas y sesiones con IA</span></div>
-          <div class="role-row"><span class="role-ico" style="background:rgba(184,134,11,.15)">👪</span><span class="who">Familia</span><span class="see">Notas, asistencia y estado de cuenta de su hijo</span></div>
+          <div class="role-row"><span class="role-ico" style="background:rgba(0,94,54,.12)">👑</span><span class="who">Dueño</span><span class="see">Ve todos los colegios y la caja global</span></div>
+          <div class="role-row"><span class="role-ico" style="background:rgba(123,193,39,.2)">🧑‍💼</span><span class="who">Administración</span><span class="see">Caja, pensiones y recibos de su colegio</span></div>
+          <div class="role-row"><span class="role-ico" style="background:rgba(0,132,194,.14)">🧑‍🏫</span><span class="who">Docente</span><span class="see">Pase de lista, notas y sesiones con IA</span></div>
+          <div class="role-row"><span class="role-ico" style="background:rgba(179,113,54,.16)">👪</span><span class="who">Familia</span><span class="see">Notas, asistencia y estado de cuenta de su hijo</span></div>
         </div>
         <div class="rv" style="--d:.1s">
           <h3 style="font-size:1.6rem;margin-bottom:12px">La nota de EduAssist alimenta el reporte de EduAdmin.</h3>
-          <p style="color:rgba(21,42,34,.78);font-size:1.02rem">Ese es el valor real de la suite: los datos conectados. La IA de EduIA conoce el contexto del aula, y EduBank premia el esfuerzo que registra el docente. Un solo sistema, una sola verdad.</p>
-          <a class="btn btn-y" href="#/login" style="margin-top:20px">Entrar al sistema →</a>
+          <p style="color:rgba(14,42,28,.76);font-size:1.02rem">Ese es el valor real de la suite: los datos conectados. La IA de EduIA conoce el contexto del aula, y EduBank premia el esfuerzo que registra el docente. Un solo sistema, una sola verdad.</p>
+          <a class="btn btn-base" href="#/login" style="margin-top:20px">Entrar al sistema →</a>
         </div>
       </div>
     </div>
@@ -234,7 +215,7 @@ function renderLanding(){
   <section class="cta-band" id="demo">
     <div class="wrap cta-grid" style="padding:80px 24px">
       <div class="rv">
-        <span class="kicker" style="color:var(--yellow)">Demo personalizada</span>
+        <span class="kicker" style="color:var(--gold)">Demo personalizada</span>
         <h2>Mira tu colegio funcionando <em>antes de decidir.</em></h2>
         <p style="opacity:.85">En 30 minutos cargamos una muestra con tus grados y pensiones reales.</p>
         <ul class="cta-list">
@@ -252,14 +233,13 @@ function renderLanding(){
         <select><option>Menos de 200</option><option selected>200 – 500</option><option>500 – 1000</option><option>Más de 1000</option></select>
         <label>Correo</label>
         <input type="email" placeholder="direccion@colegio.edu" required>
-        <button class="btn btn-y" type="submit">Quiero mi demo →</button>
+        <button class="btn btn-base" type="submit">Quiero mi demo →</button>
         <p class="form-note">🔒 Tus datos solo se usan para coordinar la demo.</p>
       </form>
     </div>
   </section>
   ` + footerHTML()
 
-  /* rotación del deck */
   const order = ['admin','assist','ia','bank']; let di = 0
   const showMod = m => {
     app.querySelectorAll('.deck-tab').forEach(b => b.classList.toggle('on', b.dataset.m === m))
@@ -270,10 +250,9 @@ function renderLanding(){
   if (tabs) tabs.addEventListener('click', e => { const b = e.target.closest('.deck-tab'); if (!b) return; di = order.indexOf(b.dataset.m); showMod(b.dataset.m); restart() })
   restart()
 
-  /* header sombra + demo form */
   addEventListener('scroll', () => { const h = document.getElementById('topbar'); if (h) h.classList.toggle('scrolled', scrollY > 10) })
   const df = document.getElementById('demoForm')
-  if (df) df.addEventListener('submit', e => { e.preventDefault(); const b = df.querySelector('button'); b.textContent = '✓ ¡Listo! Te contactamos hoy'; b.classList.add('btn-ok'); df.querySelectorAll('input,select').forEach(i => i.disabled = true) })
+  if (df) df.addEventListener('submit', e => { e.preventDefault(); const b = df.querySelector('button'); b.textContent = '✓ ¡Listo! Te contactamos hoy'; b.style.background = 'var(--base)'; b.style.color = '#fff'; df.querySelectorAll('input,select').forEach(i => i.disabled = true) })
 }
 
 /* ============ LOGIN ============ */
@@ -283,17 +262,18 @@ function renderLogin(){
     <div class="auth-art">
       <span class="art-stk a1">🔒 RLS activo</span>
       <span class="art-stk a2">👑 superadmin</span>
+      <img class="art-logo" src="/logos/edusistema.png" alt="EduSistema" onerror="this.style.display='none'">
       <h2>El sistema operativo<br><em>de tu colegio.</em></h2>
       <p>Entra con tu cuenta y el sistema te abrirá exactamente lo que te corresponde: la caja, el aula, la IA o el banco-escuela.</p>
     </div>
     <div class="auth-form-side">
       <div class="auth-card">
-        <a class="logo" href="#/"><span class="logo-badge">E</span>Edu<b>Sistema</b></a>
+        <a class="logo" href="#/"><span class="logo-badge">E</span>${WM(false)}</a>
         <div class="atag">Acceso · inicia sesión para continuar</div>
         <form id="loginForm">
           <div class="field"><label for="email">Correo</label><input id="email" type="email" placeholder="tu@correo.com" required autocomplete="email"></div>
           <div class="field"><label for="pass">Contraseña</label><input id="pass" type="password" placeholder="••••••••" required autocomplete="current-password"></div>
-          <button class="btn btn-y" type="submit" id="loginBtn">Entrar →</button>
+          <button class="btn btn-base" type="submit" id="loginBtn">Entrar →</button>
         </form>
         <div class="auth-msg" id="authMsg"></div>
         <div class="auth-foot">¿Eres director y aún no tienes cuenta? <a href="#/demo">Solicita una demo</a></div>
@@ -323,7 +303,7 @@ async function renderDueno(perfil){
   app.innerHTML = `
   <div class="app-shell">
     <aside class="side">
-      <a class="logo" href="#/"><span class="logo-badge">E</span>Edu<b>Sistema</b></a>
+      <a class="logo" href="#/"><span class="logo-badge gold">E</span>${WM(true)}</a>
       <a class="nav-i on" href="#/dueno">🏛️ Panel del dueño</a>
       <a class="nav-i" href="#/">🌐 Ver landing</a>
       <div class="side-foot">
@@ -375,7 +355,7 @@ async function paintPanel(){
 
   let cards
   if (cols.length === 0){
-    cards = `<div class="empty rv"><div class="eico">🏫</div><h3>Aún no hay colegios</h3><p>Crea tu primer colegio en Supabase (tabla <code>colegios</code>) o siembra datos de demo para verlo cobrar vida.</p><button class="btn btn-y" data-action="seed">🌱 Sembrar datos de demo</button></div>`
+    cards = `<div class="empty rv"><div class="eico">🏫</div><h3>Aún no hay colegios</h3><p>Crea tu primer colegio en Supabase (tabla <code>colegios</code>) o siembra datos de demo para verlo cobrar vida.</p><button class="btn btn-base" data-action="seed">🌱 Sembrar datos de demo</button></div>`
   } else {
     cards = `<div class="panel-head rv"><h2>Tus colegios</h2><span class="ph-note">toca "Ver caja" para desplegar los pagos</span></div>
     <div class="colegios">` + cols.map((c, i) => {
@@ -397,7 +377,7 @@ async function paintPanel(){
         </div>
         <div class="cmetrics">
           <div class="cmet"><b>${cAls.length}</b><span>alumnos</span></div>
-          <div class="cmet"><b style="color:var(--admin)">${money(recaudado)}</b><span>recaudado</span></div>
+          <div class="cmet"><b style="color:var(--admin-ink)">${money(recaudado)}</b><span>recaudado</span></div>
           <div class="cmet ${pend ? 'warn' : ''}"><b>${pend}</b><span>pendientes</span></div>
         </div>
         <div class="caja-detail">${txs}</div>
@@ -433,7 +413,7 @@ async function seedDemo(){
   await paintPanel()
 }
 
-/* ============ delegación global de clics y submits ============ */
+/* ============ delegación global ============ */
 app.addEventListener('click', e => {
   const el = e.target.closest('[data-action]')
   if (!el) return
